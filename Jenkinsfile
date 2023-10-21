@@ -27,7 +27,7 @@ pipeline {
                 bat "mvn clean package -DskipTests=true"
             }
         }
-        stage('Docker Build & Push'){
+        stage('Docker Build & Tag'){
             steps{
                 script{
                         
@@ -37,17 +37,20 @@ pipeline {
                         //docker tag
                         bat "docker tag helloworld khadijaelm24/helloworld:latest"
                         
-                    // This step should not normally be used in your script. Consult the inline help for details.
-                    withDockerContainer(image: 'https://hub.docker.com/r/khadijaelm24/helloworld', toolName: 'docker') {
+                }
+            }
+        }
+        stage('Push Docker image to DockerHub'){
+            steps{
+                script{
+                    
+                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
                         // some block
+                        bat "docker login -u khadijaelm24 -p ${dockerhubpwd}"
                         
-                        //docker push
-                        bat "docker push khadijaelm24/helloworld:latest"
+                        bat "docker push khadijaelm24/helloworld"
                     }
-                    // This step should not normally be used in your script. Consult the inline help for details.
-                    // withDockerRegistry(credentialsId: 'd4299f35-cc15-4293-af2c-82de82defe25', toolName: 'docker') {
-                    //     // some block
-                    // }
+                    
                 }
             }
         }
